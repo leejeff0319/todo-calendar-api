@@ -9,11 +9,13 @@ import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import CustomInput from "./CustomInput";
 import { authFormSchema } from "@/lib/utils";
+import { useRouter } from 'next/router';
 
 const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const formSchema = authFormSchema(type);
+  const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -28,28 +30,38 @@ const AuthForm = ({ type }: { type: string }) => {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
+    const apiUrl = type === "sign-up" ? "/register" : "/login";
+    const endpoint = `http://localhost:8080${apiUrl}`;
+
     try {
-      if (type === "sign-up") {
-        const userData = {
-          // const newUser = await signUp(data);
-          // setuser(newUser);
-        };
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to authenticate");
       }
+  
+      const result = await response.json();
 
       if (type === "sign-in") {
-        // const response = await signIn({
-        //   email: data.email,
-        //   password: data.password,
-        // })
-        // if(response) router.push("/")
+        // Store the JWT token returned by the API (if provided)
+        localStorage.setItem("token", result.token);
+        // Redirect to the home page or reload the app's authenticated state
+        router.push("/"); // Import `router` from 'next/router' at the top
+      } else {
+        setUser(result.user); // For sign-up, show user or redirect if needed
       }
+
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
-    console.log(data);
-    setIsLoading(false);
   };
 
   return (
