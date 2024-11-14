@@ -16,12 +16,15 @@ CORS(app)
 # Define the User and Todo models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(80), unique=False, nullable=False)
+    last_name = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
 class Todo(db.Model):
-    task_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date)  
+    task_id = db.Column(db.Integer, primary_key=True)    
     name = db.Column(db.String(100))
     done = db.Column(db.Boolean, default=False)
 

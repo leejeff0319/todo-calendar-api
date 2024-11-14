@@ -9,13 +9,14 @@ import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import CustomInput from "./CustomInput";
 import { authFormSchema } from "@/lib/utils";
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
+import router from 'next/router';
 
 const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const formSchema = authFormSchema(type);
-  const router = useRouter();
+  // const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
