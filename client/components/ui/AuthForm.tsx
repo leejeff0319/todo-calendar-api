@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,19 +10,22 @@ import { Form } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import CustomInput from "./CustomInput";
 import { authFormSchema } from "@/lib/utils";
-// import { useRouter } from 'next/router';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const formSchema = authFormSchema(type);
-  // const router = useRouter();
+  const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName:"",
+      lastName:"",
+      dateOfBirth:"",
       email: "",
       password: "",
     },
@@ -30,6 +34,7 @@ const AuthForm = ({ type }: { type: string }) => {
   // 2. Define a submit handler.
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    setErrorMessage("");
 
     const apiUrl = type === "sign-up" ? "/register" : "/login";
     const endpoint = `http://localhost:8080${apiUrl}`;
@@ -44,7 +49,10 @@ const AuthForm = ({ type }: { type: string }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to authenticate");
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+      } else {
+        router.push("sign-in")
       }
   
       const result = await response.json();
@@ -52,14 +60,14 @@ const AuthForm = ({ type }: { type: string }) => {
       if (type === "sign-in") {
         // Store the JWT token returned by the API (if provided)
         localStorage.setItem("token", result.token);
-        // Redirect to the home page or reload the app's authenticated state
-        router.push("/"); // Import `router` from 'next/router' at the top
+        router.push("/"); 
       } else {
         setUser(result.user); // For sign-up, show user or redirect if needed
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +80,7 @@ const AuthForm = ({ type }: { type: string }) => {
           TodoCalendar
         </h1>
         <div className="flex flex-col gap-1 md:gap-3">
-          <h1 className="text-24 lg:text-36 font-semibold text-[#bbbbbb]">
+          <h1 className="text-24 lg:text-36 font-semibold text-[#fefefe]">
             {user ? "Link Account" : type === "sign-in" ? "Sign In" : "Sign Up"}
             <p className="text-16 font-normal text-[#bbbbbb]">
               {user ? "Sign in to get started" : "Please enter your details"}
@@ -112,7 +120,7 @@ const AuthForm = ({ type }: { type: string }) => {
               control={form.control}
               name="email"
               label="Email"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
             />
             <CustomInput
               control={form.control}
@@ -134,9 +142,24 @@ const AuthForm = ({ type }: { type: string }) => {
                   "Sign Up"
                 )}
               </Button>
+              {errorMessage && <div style={{ color: "red", marginTop: "10px" }}>{errorMessage}</div>}
             </div>
           </form>
         </Form>
+
+        <footer className="flex justify-center gap-1">
+            <p className="text-14 font-normal text-[#bbbbbb]">
+              {type === "sign-in"
+                ? "Don't have an account?"
+                : "Already have an account?"}
+            </p>
+            <Link
+              href={type == "sign-in" ? "/sign-up" : "/sign-in"}
+              className="form-link font-bold text-[#fefefe]"
+            >
+              {type == "sign-in" ? "Sign up" : "Sign in"}
+            </Link>
+          </footer>
       </>
     </section>
   );

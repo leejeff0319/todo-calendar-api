@@ -1,17 +1,7 @@
 import React from "react";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Control, FieldPath, useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Control, FieldPath } from "react-hook-form";
+import { FormControl, FormField, FormLabel, FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authFormSchema } from "@/lib/utils";
 
@@ -39,6 +29,7 @@ const CustomInput = ({ control, name, label, placeholder }: CustomInput ) => {
                 className="input-class"
                 type={name === "password" ? "password" : "text"}
                 {...field}
+                value={field.value || ""}
               />
             </FormControl>
             <FormMessage className="form-message mt-2" />

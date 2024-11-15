@@ -18,6 +18,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80), unique=False, nullable=False)
     last_name = db.Column(db.String(80), unique=False, nullable=False)
+    date_of_birth = db.Column(db.Date, unique=False, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
@@ -50,6 +51,11 @@ def home():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    
+    first_name = data.get('firstName') 
+    last_name = data.get('lastName')
+    dob = datetime.datetime.strptime(data['dateOfBirth'], "%Y-%m-%d").date()
+    date_of_birth = dob
     email = data.get('email')
     password = data.get('password')
 
@@ -57,7 +63,13 @@ def register():
         return jsonify({'error': 'Email already registered.'}), 400
 
     hashed_password = generate_password_hash(password)
-    new_user = User(email=email, password=hashed_password)
+    new_user = User(
+        first_name=first_name,
+        last_name=last_name,
+        date_of_birth=date_of_birth,
+        email=email,
+        password=hashed_password
+    )
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully.'}), 201
@@ -126,5 +138,6 @@ def delete(todo_id):
     return jsonify({'error': 'Authorization token required.'}), 403
 
 if __name__ == "__main__":
-    db.create_all()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True, port=8080)  # remove debug in deployment
