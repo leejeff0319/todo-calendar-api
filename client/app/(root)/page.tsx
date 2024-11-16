@@ -4,8 +4,8 @@ import React from "react";
 
 export default function Home() {
   return (
-    <div className="">
+    <section className="flex-center min-h-screen size-full max-sm:px-6 bg-[#222222]">
       
-    </div>
+    </section>
   );
 }
