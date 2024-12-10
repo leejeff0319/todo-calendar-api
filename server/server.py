@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-import datetime
+from datetime import datetime
 
 # app instance
 app = Flask(__name__)

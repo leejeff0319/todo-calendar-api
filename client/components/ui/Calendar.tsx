@@ -1,13 +1,9 @@
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
+import React from 'react'
 
 const Calendar = () => {
   return (
-    <section className="auth-form">
-      
-    </section>
-  );
-};
+    <div></div>
+  )
+}
 
-export default Calendar;
+export default Calendar
